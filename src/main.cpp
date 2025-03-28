@@ -5,66 +5,164 @@
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
 
-void glfwWindowSizeCallback(GLFWwindow* x, int width, int height) {
-    g_windowSizeX = width;
+// Функция обратного вызова для обработки изменения размеров окна
+// Каждый раз, когда окно изменяет размер, обновляем глобальные переменные и область просмотра
+void glfwWindowSizeCallback(GLFWwindow* window, int width, int height) {
+    g_windowSizeX = width; 
     g_windowSizeY = height;
-    glViewport(0, 0, g_windowSizeX, g_windowSizeY); // выбираем где будем рисовать (с левого ниженого края с высотой х и шириной у)
+    // Устанавливаем область вывода по всему окну
+    glViewport(0, 0, g_windowSizeX, g_windowSizeY); // координаты (0,0) - нижний левый угол, далее ширина и высота
 }
 
+// Функция обратного вызова для обработки нажатия клавиш
+// Если нажата клавиша Escape, устанавливаем флаг закрытия окна
 void glfwKeyCallback(GLFWwindow* pwindow, int key, int scancode, int action, int mode) {
+    // Если нажата клавиша ESC и действие - нажатие (PRESS)
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(pwindow, GL_TRUE); // renderer loop вернет false и произойдет выход из него
+        // Устанавливаем флаг, чтобы основной цикл знал, что пора закрывать окно
+        glfwSetWindowShouldClose(pwindow, GL_TRUE);
     }
 }
+
+GLfloat point[] = {
+     0.0f,  0.5f, 0.0f,  
+     0.5f, -0.5f, 0.0f,  
+    -0.5f, -0.5f, 0.0f   
+};
+
+GLfloat colors[] = {
+    1.0f, 0.0f, 0.0f,   
+    0.0f, 1.0f, 0.0f,   
+    0.0f, 0.0f, 1.0f    
+};
+
+// Исходный код вершинного шейдера на GLSL
+// Здесь определяется входная позиция и цвет вершины,
+// и результат передается в растеризатор.
+const char* vertex_shader =
+"#version 460\n"                         // указываем версию GLSL
+"layout(location = 0) in vec3 vertex_position;"  // входной атрибут: позиция вершины (location = 0)
+"layout(location = 1) in vec3 vertex_color;"     // входной атрибут: цвет вершины (location = 1)
+"out vec3 color;"                         // выходной атрибут, передающий цвет в фрагментный шейдер
+"void main(){"
+"   color = vertex_color;"               // передаем цвет вершины дальше
+"   gl_Position = vec4(vertex_position, 1.0);" // устанавливаем позицию вершины (w = 1.0 для однородных координат)
+"}";
+
+// Исходный код фрагментного шейдера на GLSL
+// Получает цвет из вершинного шейдера и устанавливает его как итоговый цвет пикселя
+const char* fragment_shader =
+"#version 460\n"                         // указываем версию GLSL
+"in vec3 color;"                          // входной атрибут - цвет, полученный от вершинного шейдера
+"out vec4 frag_color;"                    // выходной цвет фрагмента
+"void main(){"
+"   frag_color = vec4(color, 1.0);"        // устанавливаем цвет пикселя, alpha = 1.0 (непрозрачный)
+"}";
 
 int main(void)
 {
-
-    /* Initialize the library */
     if (!glfwInit()) {
-        std::cout << "GLFW don't init! " << std::endl;
+        std::cout << "GLFW не инициализирован!" << std::endl;
         return -1;
     }
 
+    // Устанавливаем параметры для создаваемого окна:
+    // Указываем требуемую версию OpenGL (4.6) и профиль (core)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    /* Create a pwindowed mode pwindow and its OpenGL context */
-    GLFWwindow* pwindow = glfwCreateWindow(g_windowSizeX,g_windowSizeY, "GameEngine", nullptr, NULL);
+    GLFWwindow* pwindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, "GameEngine", nullptr, NULL);
     if (!pwindow)
     {
-        std::cout << "glfwCreateWindow failed!" << std::endl;
-        glfwTerminate();
+        std::cout << "Ошибка при создании окна!" << std::endl;
+        glfwTerminate();  
         return -1;
     }
 
     glfwSetWindowSizeCallback(pwindow, glfwWindowSizeCallback);
     glfwSetKeyCallback(pwindow, glfwKeyCallback);
 
-    /* Make the pwindow's context current */
     glfwMakeContextCurrent(pwindow);
 
-	if(!gladLoadGL()){
-		std::cout << "Can't load GLAD" << std::endl;
-		return -1;
-	}
+    if (!gladLoadGL()) {
+        std::cout << "Не удалось загрузить GLAD" << std::endl;
+        return -1;
+    }
 
-    std::cout << "Renderer" << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "OpenGL version" << glGetString(GL_VERSION) << std::endl;
+    // Вывод информации о рендерере и версии OpenGL в консоль
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-	glClearColor(0 , 1, 0, 1);
+    // Устанавливаем цвет очистки экрана (зеленый фон)
+    glClearColor(0, 1, 0, 1);
 
-    /* Loop until the user closes the pwindow */
+    // Создание и компиляция вершинного шейдера:
+    GLuint vs = glCreateShader(GL_VERTEX_SHADER);  // Создаем объект шейдера для вершинного шейдера
+    glShaderSource(vs, 1, &vertex_shader, nullptr);   // Передаем исходный код шейдера
+    glCompileShader(vs);                              // Компилируем шейдер
+
+    // Создание и компиляция фрагментного шейдера:
+    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);  // Создаем объект шейдера для фрагментного шейдера
+    glShaderSource(fs, 1, &fragment_shader, nullptr);  // Передаем исходный код шейдера
+    glCompileShader(fs);                              // Компилируем шейдер
+
+    // Создаем программу шейдеров и прикрепляем к ней скомпилированные шейдеры
+    GLuint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vs);
+    glAttachShader(shader_program, fs);
+    glLinkProgram(shader_program); // Линкуем программу, чтобы связать шейдеры вместе
+
+    // После линковки можно удалить отдельные объекты шейдеров, они уже не нужны
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    // Создаем буфер для хранения вершинных координат (VBO для точек)
+    GLuint points_vbo = 0;
+    glGenBuffers(1, &points_vbo); // Генерируем идентификатор буфера
+    glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем буфер к типу GL_ARRAY_BUFFER
+    glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW); // Загружаем данные вершин
+
+    // Создаем буфер для хранения цветов вершин (VBO для цветов)
+    GLuint colors_vbo = 0;
+    glGenBuffers(1, &colors_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Загружаем данные цветов
+
+    // Создаем объект вершинного массива (VAO)
+    // VAO хранит информацию о том, как привязаны VBO и их атрибуты
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Настраиваем атрибут для вершин (позиция):
+    glEnableVertexAttribArray(0); // Включаем атрибут с location = 0 (позиция)
+    glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем соответствующий VBO
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных:
+    // 3 компоненты на вершину, тип данных GL_FLOAT, без нормализации, без промежутка между элементами
+
+    // Настраиваем атрибут для цветов:
+    glEnableVertexAttribArray(1); // Включаем атрибут с location = 1 (цвет)
+    glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Привязываем VBO для цветов
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных для цветов
+
+    // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
     while (!glfwWindowShouldClose(pwindow))
     {
-        /* Render here */
+        // Очистка экрана: очищаем буфер цвета, используя заданный ранее glClearColor
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
+        // Используем созданную программу шейдеров
+        glUseProgram(shader_program);
+        // Привязываем VAO, содержащий настройки для вершин и цветов
+        glBindVertexArray(vao);
+        // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
         glfwSwapBuffers(pwindow);
 
-        /* Poll for and process events */
+        // Обработка событий (например, ввод с клавиатуры, изменение размеров окна)
         glfwPollEvents();
     }
 

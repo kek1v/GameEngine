@@ -1,6 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
+
+#include"Renderer/Shaderprogram.hpp"
 
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
@@ -97,25 +100,14 @@ int main(void)
     // Устанавливаем цвет очистки экрана (зеленый фон)
     glClearColor(0, 1, 0, 1);
 
-    // Создание и компиляция вершинного шейдера:
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);  // Создаем объект шейдера для вершинного шейдера
-    glShaderSource(vs, 1, &vertex_shader, nullptr);   // Передаем исходный код шейдера
-    glCompileShader(vs);                              // Компилируем шейдер
+    std::string vertexShader(vertex_shader);
+    std::string fragmentShader(fragment_shader);
+    Renderer::ShaderProgram shaderprogram(vertexShader, fragmentShader);
+    if (!shaderprogram.isCompiled()) {
+        std::cerr << "Can't create shader program" << std::endl;
+        return -1;
+    }
 
-    // Создание и компиляция фрагментного шейдера:
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);  // Создаем объект шейдера для фрагментного шейдера
-    glShaderSource(fs, 1, &fragment_shader, nullptr);  // Передаем исходный код шейдера
-    glCompileShader(fs);                              // Компилируем шейдер
-
-    // Создаем программу шейдеров и прикрепляем к ней скомпилированные шейдеры
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vs);
-    glAttachShader(shader_program, fs);
-    glLinkProgram(shader_program); // Линкуем программу, чтобы связать шейдеры вместе
-
-    // После линковки можно удалить отдельные объекты шейдеров, они уже не нужны
-    glDeleteShader(vs);
-    glDeleteShader(fs);
 
     // Создаем буфер для хранения вершинных координат (VBO для точек)
     GLuint points_vbo = 0;
@@ -151,9 +143,8 @@ int main(void)
     {
         // Очистка экрана: очищаем буфер цвета, используя заданный ранее glClearColor
         glClear(GL_COLOR_BUFFER_BIT);
-
-        // Используем созданную программу шейдеров
-        glUseProgram(shader_program);
+        
+        shaderprogram.use();
         // Привязываем VAO, содержащий настройки для вершин и цветов
         glBindVertexArray(vao);
         // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник

@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include"Renderer/Shaderprogram.hpp"
+#include"Resources/ResourceManager.hpp"
 
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
@@ -39,31 +40,8 @@ GLfloat colors[] = {
     0.0f, 0.0f, 1.0f    
 };
 
-// Исходный код вершинного шейдера на GLSL
-// Здесь определяется входная позиция и цвет вершины,
-// и результат передается в растеризатор.
-const char* vertex_shader =
-"#version 460\n"                         // указываем версию GLSL
-"layout(location = 0) in vec3 vertex_position;"  // входной атрибут: позиция вершины (location = 0)
-"layout(location = 1) in vec3 vertex_color;"     // входной атрибут: цвет вершины (location = 1)
-"out vec3 color;"                         // выходной атрибут, передающий цвет в фрагментный шейдер
-"void main(){"
-"   color = vertex_color;"               // передаем цвет вершины дальше
-"   gl_Position = vec4(vertex_position, 1.0);" // устанавливаем позицию вершины (w = 1.0 для однородных координат)
-"}";
+int main(int argc, char** argv) {
 
-// Исходный код фрагментного шейдера на GLSL
-// Получает цвет из вершинного шейдера и устанавливает его как итоговый цвет пикселя
-const char* fragment_shader =
-"#version 460\n"                         // указываем версию GLSL
-"in vec3 color;"                          // входной атрибут - цвет, полученный от вершинного шейдера
-"out vec4 frag_color;"                    // выходной цвет фрагмента
-"void main(){"
-"   frag_color = vec4(color, 1.0);"        // устанавливаем цвет пикселя, alpha = 1.0 (непрозрачный)
-"}";
-
-int main(void)
-{
     if (!glfwInit()) {
         std::cout << "GLFW не инициализирован!" << std::endl;
         return -1;
@@ -79,7 +57,7 @@ int main(void)
     if (!pwindow)
     {
         std::cout << "Ошибка при создании окна!" << std::endl;
-        glfwTerminate();  
+        glfwTerminate();
         return -1;
     }
 
@@ -100,61 +78,61 @@ int main(void)
     // Устанавливаем цвет очистки экрана (зеленый фон)
     glClearColor(0, 1, 0, 1);
 
-    std::string vertexShader(vertex_shader);
-    std::string fragmentShader(fragment_shader);
-    Renderer::ShaderProgram shaderprogram(vertexShader, fragmentShader);
-    if (!shaderprogram.isCompiled()) {
-        std::cerr << "Can't create shader program" << std::endl;
-        return -1;
-    }
+    {   // изменение области видимости для того что бы обьект ResourceManager успел уничтожиться до выхода из контекста openGL 
+        ResourceManager resourceManager(argv[0]);
+        auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+        if (!pDefaultShaderProgram) {
+            std::cerr << "Can't create shader program: " << "DefaultShader" << std::endl;
+            return 1;
+        }
 
+        // Создаем буфер для хранения вершинных координат (VBO для точек)
+        GLuint points_vbo = 0;
+        glGenBuffers(1, &points_vbo); // Генерируем идентификатор буфера
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем буфер к типу GL_ARRAY_BUFFER
+        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW); // Загружаем данные вершин
 
-    // Создаем буфер для хранения вершинных координат (VBO для точек)
-    GLuint points_vbo = 0;
-    glGenBuffers(1, &points_vbo); // Генерируем идентификатор буфера
-    glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем буфер к типу GL_ARRAY_BUFFER
-    glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW); // Загружаем данные вершин
+        // Создаем буфер для хранения цветов вершин (VBO для цветов)
+        GLuint colors_vbo = 0;
+        glGenBuffers(1, &colors_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Загружаем данные цветов
 
-    // Создаем буфер для хранения цветов вершин (VBO для цветов)
-    GLuint colors_vbo = 0;
-    glGenBuffers(1, &colors_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Загружаем данные цветов
-
-    // Создаем объект вершинного массива (VAO)
-    // VAO хранит информацию о том, как привязаны VBO и их атрибуты
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    // Настраиваем атрибут для вершин (позиция):
-    glEnableVertexAttribArray(0); // Включаем атрибут с location = 0 (позиция)
-    glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем соответствующий VBO
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных:
-    // 3 компоненты на вершину, тип данных GL_FLOAT, без нормализации, без промежутка между элементами
-
-    // Настраиваем атрибут для цветов:
-    glEnableVertexAttribArray(1); // Включаем атрибут с location = 1 (цвет)
-    glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Привязываем VBO для цветов
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных для цветов
-
-    // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
-    while (!glfwWindowShouldClose(pwindow))
-    {
-        // Очистка экрана: очищаем буфер цвета, используя заданный ранее glClearColor
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        shaderprogram.use();
-        // Привязываем VAO, содержащий настройки для вершин и цветов
+        // Создаем объект вершинного массива (VAO)
+        // VAO хранит информацию о том, как привязаны VBO и их атрибуты
+        GLuint vao = 0;
+        glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
-        // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник
-        glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
-        glfwSwapBuffers(pwindow);
+        // Настраиваем атрибут для вершин (позиция):
+        glEnableVertexAttribArray(0); // Включаем атрибут с location = 0 (позиция)
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем соответствующий VBO
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных:
+        // 3 компоненты на вершину, тип данных GL_FLOAT, без нормализации, без промежутка между элементами
 
-        // Обработка событий (например, ввод с клавиатуры, изменение размеров окна)
-        glfwPollEvents();
+        // Настраиваем атрибут для цветов:
+        glEnableVertexAttribArray(1); // Включаем атрибут с location = 1 (цвет)
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Привязываем VBO для цветов
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных для цветов
+
+        // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
+        while (!glfwWindowShouldClose(pwindow))
+        {
+            // Очистка экрана: очищаем буфер цвета, используя заданный ранее glClearColor
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            pDefaultShaderProgram->use();
+            // Привязываем VAO, содержащий настройки для вершин и цветов
+            glBindVertexArray(vao);
+            // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
+            glfwSwapBuffers(pwindow);
+
+            // Обработка событий (например, ввод с клавиатуры, изменение размеров окна)
+            glfwPollEvents();
+        }
     }
 
     glfwTerminate();

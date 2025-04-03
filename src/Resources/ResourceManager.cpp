@@ -5,6 +5,10 @@
 #include<fstream>
 #include<iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define	STBI_ONLY_JPEG
+#include "stb_image.h"
+
 ResourceManager::ResourceManager(const std::string& executablePath) {
 
 	// берем путь к экзешнику и берем из этой строки подстроку с 0 символа до последнего слэша
@@ -60,4 +64,20 @@ std::shared_ptr<Renderer::ShaderProgram> ResourceManager::getShaderProgram(const
 
 	std::cerr << "Can't find the shader program: " << shaderName << std::endl;
 	return nullptr;
+}
+
+
+void ResourceManager::loadTexture(const std::string& textureName, const std::string& texturePath) {
+	int channels = 0;
+	int width = 0;
+	int height = 0;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* pixels = stbi_load(std::string(m_Path + "/" + texturePath).c_str(), &width, &height, &channels, 0);
+	
+	if (!pixels) {
+		std::cerr << "Cant load image: " << texturePath << std::endl;
+		return;
+	}
+
+	stbi_image_free(pixels);
 }

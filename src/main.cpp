@@ -86,6 +86,8 @@ int main(int argc, char** argv) {
             return 1;
         }
 
+        resourceManager.loadTexture("Defaulttexture", "res/textures/triangle_texture.jpg");
+
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;
         glGenBuffers(1, &points_vbo); // Генерируем идентификатор буфера

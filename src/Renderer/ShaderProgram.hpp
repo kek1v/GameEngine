@@ -10,6 +10,7 @@ namespace Renderer {
 		~ShaderProgram();
 		bool isCompiled() const { return m_isCompiled; };
 		void use() const;
+		void setInt(const std::string& name, const GLint value);
 
 		ShaderProgram() = delete;
 		ShaderProgram(ShaderProgram&) = delete;
@@ -19,6 +20,7 @@ namespace Renderer {
 
 	private:
 		bool createShader(const std::string& source, const GLenum shaderType, GLuint& shaderID);
+
 		bool m_isCompiled = false;
 		GLuint m_ID = 0;
 	};

@@ -5,6 +5,7 @@
 
 #include"Renderer/Shaderprogram.hpp"
 #include"Resources/ResourceManager.hpp"
+#include"Renderer/Texture2D.hpp"
 
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
@@ -39,6 +40,13 @@ GLfloat colors[] = {
     0.0f, 1.0f, 0.0f,   
     0.0f, 0.0f, 1.0f    
 };
+
+GLfloat texCoords[] = {
+    0.5f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f
+};
+
 
 int main(int argc, char** argv) {
 
@@ -86,7 +94,7 @@ int main(int argc, char** argv) {
             return 1;
         }
 
-        resourceManager.loadTexture("Defaulttexture", "res/textures/triangle_texture.jpg");
+        auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/triangle_texture.jpg");
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;
@@ -94,11 +102,15 @@ int main(int argc, char** argv) {
         glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем буфер к типу GL_ARRAY_BUFFER
         glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW); // Загружаем данные вершин
 
+        glGenBuffers(1, &points_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW);
+
         // Создаем буфер для хранения цветов вершин (VBO для цветов)
-        GLuint colors_vbo = 0;
-        glGenBuffers(1, &colors_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Загружаем данные цветов
+        GLuint texCoord_vbo = 0;
+        glGenBuffers(1, &texCoord_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, texCoord_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW); // Загружаем данные цветов
 
         // Создаем объект вершинного массива (VAO)
         // VAO хранит информацию о том, как привязаны VBO и их атрибуты
@@ -113,9 +125,17 @@ int main(int argc, char** argv) {
         // 3 компоненты на вершину, тип данных GL_FLOAT, без нормализации, без промежутка между элементами
 
         // Настраиваем атрибут для цветов:
+        GLuint colors_vbo = 0;
         glEnableVertexAttribArray(1); // Включаем атрибут с location = 1 (цвет)
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Привязываем VBO для цветов
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных для цветов
+
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, texCoord_vbo);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        pDefaultShaderProgram->use();
+        pDefaultShaderProgram->setInt("tex", 0);
 
         // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
         while (!glfwWindowShouldClose(pwindow))
@@ -126,6 +146,7 @@ int main(int argc, char** argv) {
             pDefaultShaderProgram->use();
             // Привязываем VAO, содержащий настройки для вершин и цветов
             glBindVertexArray(vao);
+            tex->bind(); // делаем текстуру активной
             // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник
             glDrawArrays(GL_TRIANGLES, 0, 3);
 

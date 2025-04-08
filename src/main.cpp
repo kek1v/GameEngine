@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "vec2.hpp"
 
 #include <iostream>
 
@@ -7,16 +8,15 @@
 #include"Resources/ResourceManager.hpp"
 #include"Renderer/Texture2D.hpp"
 
-int g_windowSizeX = 640;
-int g_windowSizeY = 480;
+glm::ivec2 g_windowSize(640, 480);
 
 // Функция обратного вызова для обработки изменения размеров окна
 // Каждый раз, когда окно изменяет размер, обновляем глобальные переменные и область просмотра
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height) {
-    g_windowSizeX = width; 
-    g_windowSizeY = height;
+    g_windowSize.x = width; 
+    g_windowSize.y = height;
     // Устанавливаем область вывода по всему окну
-    glViewport(0, 0, g_windowSizeX, g_windowSizeY); // координаты (0,0) - нижний левый угол, далее ширина и высота
+    glViewport(0, 0, width, height); // координаты (0,0) - нижний левый угол, далее ширина и высота
 }
 
 // Функция обратного вызова для обработки нажатия клавиш
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* pwindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, "GameEngine", nullptr, NULL);
+    GLFWwindow* pwindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, "GameEngine", nullptr, NULL);
     if (!pwindow)
     {
         std::cout << "Ошибка при создании окна!" << std::endl;
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
     // Устанавливаем цвет очистки экрана (зеленый фон)
-    glClearColor(0, 1, 0, 1);
+    glClearColor(100, 0, 52, 1);
 
     {   // изменение области видимости для того что бы обьект ResourceManager успел уничтожиться до выхода из контекста openGL 
         ResourceManager resourceManager(argv[0]);

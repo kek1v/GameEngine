@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "vec2.hpp"
+#include <vec2.hpp>
+#include <mat4x4.hpp>
+#include <gtc/matrix_transform.hpp>
 
 #include <iostream>
 
@@ -30,9 +32,9 @@ void glfwKeyCallback(GLFWwindow* pwindow, int key, int scancode, int action, int
 }
 
 GLfloat point[] = {
-     0.0f,  0.5f, 0.0f,  
-     0.5f, -0.5f, 0.0f,  
-    -0.5f, -0.5f, 0.0f   
+     0.0f,  50.f, 0.0f,
+     50.f, -50.f, 0.0f,
+    -50.f, -50.f, 0.0f
 };
 
 GLfloat colors[] = {
@@ -137,18 +139,38 @@ int main(int argc, char** argv) {
         pDefaultShaderProgram->use();
         pDefaultShaderProgram->setInt("tex", 0);
 
+
+
+        glm::mat4 modelMatrix1 = glm::mat4(1.f); // единичная матрица (она не выполняет никаких преобразований)
+        modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(100.f, 200.f, 0.f)); // переместили нашу modelMatrix на vec3
+
+        glm::mat4 modelMatrix2 = glm::mat4(1.f); 
+        modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(540.f, 200.f, 0.f)); 
+
+        // теперь перемножаем на projection matrix
+        glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
+
+        pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
+
+
         // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
         while (!glfwWindowShouldClose(pwindow))
         {
-            // Очистка экрана: очищаем буфер цвета, используя заданный ранее glClearColor
             glClear(GL_COLOR_BUFFER_BIT);
 
             pDefaultShaderProgram->use();
             // Привязываем VAO, содержащий настройки для вершин и цветов
             glBindVertexArray(vao);
             tex->bind(); // делаем текстуру активной
-            // Рисуем треугольник: GL_TRIANGLES указывает, что каждые 3 вершины составляют один треугольник
+
+            pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix1);
             glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+            pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix2);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
             // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
             glfwSwapBuffers(pwindow);

@@ -9,6 +9,7 @@
 #include"Renderer/Shaderprogram.hpp"
 #include"Resources/ResourceManager.hpp"
 #include"Renderer/Texture2D.hpp"
+#include"Renderer/Sprite.hpp"
 
 glm::ivec2 g_windowSize(640, 480);
 
@@ -93,10 +94,19 @@ int main(int argc, char** argv) {
         auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
         if (!pDefaultShaderProgram) {
             std::cerr << "Can't create shader program: " << "DefaultShader" << std::endl;
-            return 1;
+            return -1;
+        }
+
+        auto pSpriteShaderProgram = resourceManager.loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
+        if (!pSpriteShaderProgram) {
+            std::cerr << "Can't create sprite shader program: " << "DefaultSprite" << std::endl;
+            return -1;
         }
 
         auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/triangle_texture.jpg");
+
+        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
+        pSprite->setPosition(glm::vec2(300, 100));
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;
@@ -152,7 +162,9 @@ int main(int argc, char** argv) {
 
         pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
-
+        pSpriteShaderProgram->use();
+        pSpriteShaderProgram->setInt("tex", 0);
+        pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
         // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
         while (!glfwWindowShouldClose(pwindow))
@@ -170,7 +182,8 @@ int main(int argc, char** argv) {
 
             pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix2);
             glDrawArrays(GL_TRIANGLES, 0, 3);
-
+    
+            pSprite->render();
 
             // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
             glfwSwapBuffers(pwindow);

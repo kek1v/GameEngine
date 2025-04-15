@@ -104,6 +104,8 @@ int main(int argc, char** argv) {
         }
 
         auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/triangle_texture.jpg");
+        
+        std::vector<std::string> subTexturesName = {};
 
         auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
         pSprite->setPosition(glm::vec2(300, 100));

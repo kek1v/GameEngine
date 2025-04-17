@@ -104,10 +104,33 @@ int main(int argc, char** argv) {
         }
 
         auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/triangle_texture.jpg");
-        
-        std::vector<std::string> subTexturesName = {};
 
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
+        std::vector<std::string> subTexturesNames = { // см в tex_atlas1.png
+            // Ряд 1
+            "sand",             // Песок
+            "wood_bark",        // Древесная кора
+            "cliff_dark",       // Темная скала
+            "cliff_striated",   // Слоистая скала
+            // Ряд 2
+            "gravel",           // Гравий/Асфальт
+            "grass_sparse",     // Редкая трава
+            "grass_lush",       // Густая трава
+            "mossy_ground",     // Мшистая земля
+            // Ряд 3
+            "dry_leaves",       // Сухие листья/Лесная подстилка
+            "soil_gravel",      // Почва с гравием
+            "rock_red",         // Красный камень/Скала
+            "rocky_ground",     // Каменистая земля
+            // Ряд 4
+            "snow",             // Снег
+            "stone_dark",       // Темный камень
+            "stone_wall",       // Каменная стена
+            "cobblestone"       // Брусчатка/Булыжник
+        };        
+        
+        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 256, 256);
+        
+        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "cobblestone");
         pSprite->setPosition(glm::vec2(300, 100));
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)

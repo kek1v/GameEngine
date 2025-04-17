@@ -8,7 +8,7 @@
 #include<iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
-#define	STBI_ONLY_JPEG
+//#define	STBI_ONLY_JPEG
 #include "stb_image.h"
 
 ResourceManager::ResourceManager(const std::string& executablePath) {
@@ -135,7 +135,7 @@ std::shared_ptr<Renderer::Sprite> ResourceManager::getSprite(const std::string& 
 	return nullptr;
 }
 
-std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(std::string& textureName,
+std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(const std::string& textureName,
 	const std::string& texturePath,
 	const std::vector<std::string> subTextures,
 	const unsigned int subTextureWidth,
@@ -151,6 +151,7 @@ std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(std::str
 			glm::vec2 leftBottomUV(static_cast<float>(currentTextureOffsetX) / textureWidth ,static_cast<float>(currentTextureOffsetY - subTextureHeiht) / textureHeight);
 			glm::vec2 rightTopUV(static_cast<float>(currentTextureOffsetX + subTextureWidth) / textureWidth, static_cast<float>(currentTextureOffsetY) / textureHeight);
 
+			pTexture->addSubTexture(std::move(currentSubTextureName), leftBottomUV, rightTopUV);
 			currentTextureOffsetX += subTextureWidth;
 			if (currentTextureOffsetX >= textureWidth) {
 				currentTextureOffsetX = 0;

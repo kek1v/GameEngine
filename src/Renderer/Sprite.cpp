@@ -81,10 +81,10 @@ namespace Renderer {
 		
 		// все матричные преобразования в обратном порядке		
 		model = glm::translate(model, glm::vec3(m_position, 0.f));
-		model = glm::translate(model, glm::vec3(0.5f * m_size.x, 0.5f * m_size.y, 0));
+		model = glm::translate(model, glm::vec3(0.5f * m_size.x, 0.5f * m_size.y, 0.f));
 		model = glm::rotate(model, glm::radians(m_rotation), glm::vec3(0.f, 0.f, 1.0f));
-		model = glm::translate(model, glm::vec3(-0.5f * m_size.x, -0.5f * m_size.y, 0));
-		model = glm::scale(model, glm::vec3(m_size, 1));
+		model = glm::translate(model, glm::vec3(-0.5f * m_size.x, -0.5f * m_size.y, 0.f));
+		model = glm::scale(model, glm::vec3(m_size, 1.f));
 
 		glBindVertexArray(m_VAO);
 		m_pShaderprogram->setMatrix4("modelMat", model);

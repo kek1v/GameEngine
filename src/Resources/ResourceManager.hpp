@@ -36,7 +36,7 @@ public:
 												 const std::string& subTextureName = "default");
 	std::shared_ptr<Renderer::Sprite> getSprite(const std::string& spriteName);
 
-	std::shared_ptr<Renderer::Texture2D>  loadTextureAtlas(std::string& textureName,
+	std::shared_ptr<Renderer::Texture2D>  loadTextureAtlas(const std::string& textureName,
 													       const std::string& texturePath,
 		                                                   const std::vector<std::string> subTextures,
 			                                               const unsigned int subTextureWidth,

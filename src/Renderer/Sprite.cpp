@@ -17,7 +17,8 @@ namespace Renderer {
 				   : m_pTexture(std::move(pTexture))
 				   , m_pShaderprogram(std::move(pShaderprogram))
 				   , m_position(position)
-		           , m_size(size) {
+		           , m_size(size)
+				   , m_rotation(rotation) {
 		
 	    const GLfloat vertexCoords[] = {
 		    // 1--3   1
@@ -34,13 +35,13 @@ namespace Renderer {
 			0.f, 0.f
 		};
 
-		auto subTexture = pTexture->getSubTexture(std::move(initialSubTexture));
+		auto& subTexture = pTexture->getSubTexture(std::move(initialSubTexture));
 
 		const GLfloat textureCoords[]{
 			//U    V
 			subTexture.leftBottomUV.x, subTexture.leftBottomUV.y,
 			subTexture.leftBottomUV.x, subTexture.rightTopUV.y,
-			subTexture.rightTopUV.y,   subTexture.rightTopUV.y,
+			subTexture.rightTopUV.x,   subTexture.rightTopUV.y,
 
 			subTexture.rightTopUV.x,   subTexture.rightTopUV.y,
 			subTexture.rightTopUV.x,   subTexture.leftBottomUV.y,
@@ -51,14 +52,12 @@ namespace Renderer {
 		glBindVertexArray(m_VAO);
 
 		glGenBuffers(1, &m_vertexCoordsVBO);
-		glBindVertexArray(m_vertexCoordsVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexCoordsVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCoords), &vertexCoords, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 		glGenBuffers(1, &m_textureCoordsVBO);
-		glBindVertexArray(m_textureCoordsVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureCoordsVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoords), &textureCoords, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(1);
@@ -77,7 +76,7 @@ namespace Renderer {
 
 	void Sprite::render() const {
 		m_pShaderprogram->use();
-		glm::mat4x4 model(1.f);
+		glm::mat4 model(1.f);
 		
 		// все матричные преобразования в обратном порядке		
 		model = glm::translate(model, glm::vec3(m_position, 0.f));

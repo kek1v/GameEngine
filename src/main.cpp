@@ -128,9 +128,9 @@ int main(int argc, char** argv) {
             "cobblestone"       // Брусчатка/Булыжник
         };        
         
-        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 256, 256);
+        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 512, 512);
         
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "cobblestone");
+        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 50, 50, "snow");
         pSprite->setPosition(glm::vec2(300, 100));
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)

@@ -82,6 +82,9 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Вывод информации о рендерере и версии OpenGL в консоль
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
@@ -128,10 +131,10 @@ int main(int argc, char** argv) {
             "cobblestone"       // Брусчатка/Булыжник
         };        
         
-        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 512, 512);
+        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 128, 128);
         
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 50, 50, "snow");
-        pSprite->setPosition(glm::vec2(300, 100));
+        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "wood_bark");
+        pSprite->setPosition(glm::vec2(280, 100));
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;

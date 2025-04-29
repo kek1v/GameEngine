@@ -8,7 +8,7 @@
 #include<iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
-//#define	STBI_ONLY_JPEG
+//#define	STBI_ONLY_JP
 #include "stb_image.h"
 
 ResourceManager::ResourceManager(const std::string& executablePath) {
@@ -160,7 +160,7 @@ std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(const st
 		currentTextureOffsetX += subTextureWidth;
 		if (currentTextureOffsetX >= textureWidth) {
 			currentTextureOffsetX = 0;
-			currentTextureOffsetY = subTextureHeiht;
+			currentTextureOffsetY -= subTextureHeiht;
 		}
 	}
 	

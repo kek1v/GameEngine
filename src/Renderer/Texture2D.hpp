@@ -14,7 +14,7 @@ namespace Renderer {
 			glm::vec2 rightTopUV;
 
 			SubTexture2D(const glm::vec2& _leftBottomUV, const glm::vec2& _rightTopUV)
-				: leftBottomUV(leftBottomUV)
+				: leftBottomUV(_leftBottomUV)
 				, rightTopUV(_rightTopUV){ }
 
 			SubTexture2D()

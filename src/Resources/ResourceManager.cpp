@@ -137,10 +137,10 @@ std::shared_ptr<Renderer::Sprite> ResourceManager::getSprite(const std::string& 
 }
 
 std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(const std::string& textureName,
-	const std::string& texturePath,
-	const std::vector<std::string> subTextures,
-	const unsigned int subTextureWidth,
-	const unsigned int subTextureHeiht) {
+																		const std::string& texturePath,
+																		const std::vector<std::string> subTextures,
+																		const unsigned int subTextureWidth,
+																		const unsigned int subTextureHeiht) {
 
 	auto pTexture = loadTexture(std::move(textureName), std::move(texturePath));
 	if (!pTexture) {
@@ -152,7 +152,7 @@ std::shared_ptr<Renderer::Texture2D>  ResourceManager::loadTextureAtlas(const st
 	const unsigned int textureHeight = pTexture->height();
 	unsigned int currentTextureOffsetX = 0;
 	unsigned int currentTextureOffsetY = textureHeight;
-	for (const auto& currentSubTextureName : subTextures) {
+	for (auto& currentSubTextureName : subTextures) {
 		glm::vec2 leftBottomUV(static_cast<float>(currentTextureOffsetX) / textureWidth ,static_cast<float>(currentTextureOffsetY - subTextureHeiht) / textureHeight);
 		glm::vec2 rightTopUV(static_cast<float>(currentTextureOffsetX + subTextureWidth) / textureWidth, static_cast<float>(currentTextureOffsetY) / textureHeight);
 

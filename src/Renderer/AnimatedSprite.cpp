@@ -1,4 +1,5 @@
 #include "AnimatedSprite.hpp"
+#include "Texture2D.hpp"
 
 #include <string>
 #include <iostream>
@@ -13,16 +14,13 @@ namespace Renderer {
 		float rotation)
 		: Sprite(std::move(pTexture), std::move(initialSubTexture), std::move(pShaderprogram), position, size, rotation) {
 
-
+		m_pCurrentAnimationDurations = m_statesMap.end();
 	}
 
 	void AnimatedSprite::insertState(std::string stateName, std::vector<std::pair<std::string, uint64_t>> subTexturesDuration) {
 		m_statesMap.emplace(std::move(stateName), std::move(subTexturesDuration));
 	}
 
-	void AnimatedSprite::render() const {
-
-	}
 
 	void AnimatedSprite::setState(const std::string& newState) {
 		auto it = m_statesMap.find(newState);
@@ -30,13 +28,50 @@ namespace Renderer {
 			std::cerr << "Can't find animation state: " << newState << std::endl;
 			return;
 		}
-		
-		m_currentAnimationTime = 0;
-		m_currentFrame = 0;
+		if (it != m_pCurrentAnimationDurations) {
+			m_currentAnimationTime = 0;
+			m_currentFrame = 0;
+			m_pCurrentAnimationDurations = it;
+			m_dirty = true;
+		}
 
 	}
 
-	void AnimatedSprite::update(const size_t delta) {
+	void AnimatedSprite::update(const uint64_t delta) {
+		if (m_pCurrentAnimationDurations != m_statesMap.end()) {
+			m_currentAnimationTime += delta;
 
+			while (m_currentAnimationTime >= m_pCurrentAnimationDurations->second[m_currentFrame].second) {
+				m_currentAnimationTime -= m_pCurrentAnimationDurations->second[m_currentFrame].second;
+				++m_currentFrame;
+				m_dirty = true;
+			}
+			if (m_currentFrame == m_pCurrentAnimationDurations->second.size()) {
+				m_currentFrame = 0;
+			}
+		}
+	}
+	void AnimatedSprite::render() const {
+		if (m_dirty) {
+			auto& subTexture = m_pTexture->getSubTexture(m_pCurrentAnimationDurations->second[m_currentFrame].first);
+
+			const GLfloat textureCoords[]{
+				//U    V
+				subTexture.leftBottomUV.x, subTexture.leftBottomUV.y,
+				subTexture.leftBottomUV.x, subTexture.rightTopUV.y,
+				subTexture.rightTopUV.x,   subTexture.rightTopUV.y,
+
+				subTexture.rightTopUV.x,   subTexture.rightTopUV.y,
+				subTexture.rightTopUV.x,   subTexture.leftBottomUV.y,
+				subTexture.leftBottomUV.x, subTexture.leftBottomUV.y
+			};
+
+
+			glBindBuffer(GL_ARRAY_BUFFER, m_textureCoordsVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(textureCoords), &textureCoords);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			m_dirty = false;
+		}
+		Sprite::render();
 	}
 }

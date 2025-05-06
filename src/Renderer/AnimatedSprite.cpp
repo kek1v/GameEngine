@@ -7,11 +7,11 @@
 namespace Renderer {
 
 	AnimatedSprite::AnimatedSprite(std::shared_ptr<Texture2D> pTexture,
-		std::string& initialSubTexture,
+		std::string initialSubTexture,
 		std::shared_ptr<ShaderProgram> pShaderprogram,
-		glm::vec2& position,
-		glm::vec2& size,
-		float rotation)
+		const glm::vec2& position,
+		const glm::vec2& size,
+		const float rotation)
 		: Sprite(std::move(pTexture), std::move(initialSubTexture), std::move(pShaderprogram), position, size, rotation) {
 
 		m_pCurrentAnimationDurations = m_statesMap.end();

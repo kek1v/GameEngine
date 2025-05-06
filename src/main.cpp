@@ -10,6 +10,7 @@
 #include"Resources/ResourceManager.hpp"
 #include"Renderer/Texture2D.hpp"
 #include"Renderer/Sprite.hpp"
+#include"Renderer/AnimatedSprite.hpp"
 
 glm::ivec2 g_windowSize(640, 480);
 
@@ -135,6 +136,20 @@ int main(int argc, char** argv) {
         
         auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "wood_bark");
         pSprite->setPosition(glm::vec2(280, 100));
+
+        auto pAnimatedSprite = resourceManager.loadAnimatedSprite("NewAnimatedSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "rock_red");
+        pAnimatedSprite->setPosition(glm::vec2(400, 250));
+        std::vector<std::pair<std::string, uint64_t>> rockStates;
+        rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rock_red",1000000000));
+        rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rocky_ground", 1000000000));
+
+        std::vector<std::pair<std::string, uint64_t>> grassStates;
+        grassStates.emplace_back(std::make_pair<std::string, uint64_t>("grass_sparse", 1000000000));
+        grassStates.emplace_back(std::make_pair<std::string, uint64_t>("grass_lush", 1000000000));
+
+        pAnimatedSprite->insertState("rockState", std::move(rockStates));
+        pAnimatedSprite->insertState("grassState", std::move(grassStates));
+        pAnimatedSprite->setState("rockState");
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;

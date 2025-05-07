@@ -24,7 +24,7 @@ namespace Renderer {
 
 	void AnimatedSprite::setState(const std::string& newState) {
 		auto it = m_statesMap.find(newState);
-		if (it != m_statesMap.end()) {
+		if (it == m_statesMap.end()) {
 			std::cerr << "Can't find animation state: " << newState << std::endl;
 			return;
 		}
@@ -45,9 +45,10 @@ namespace Renderer {
 				m_currentAnimationTime -= m_pCurrentAnimationDurations->second[m_currentFrame].second;
 				++m_currentFrame;
 				m_dirty = true;
-			}
-			if (m_currentFrame == m_pCurrentAnimationDurations->second.size()) {
-				m_currentFrame = 0;
+
+				if (m_currentFrame == m_pCurrentAnimationDurations->second.size()) {
+					m_currentFrame = 0;
+				}
 			}
 		}
 	}

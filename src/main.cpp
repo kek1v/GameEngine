@@ -5,6 +5,7 @@
 #include <gtc/matrix_transform.hpp>
 
 #include <iostream>
+#include <chrono>
 
 #include"Renderer/Shaderprogram.hpp"
 #include"Resources/ResourceManager.hpp"
@@ -12,24 +13,21 @@
 #include"Renderer/Sprite.hpp"
 #include"Renderer/AnimatedSprite.hpp"
 
-glm::ivec2 g_windowSize(640, 480);
+glm::vec2 g_windowSize(640, 480);
+bool isGrass = false;
 
-// Функция обратного вызова для обработки изменения размеров окна
-// Каждый раз, когда окно изменяет размер, обновляем глобальные переменные и область просмотра
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height) {
     g_windowSize.x = width; 
     g_windowSize.y = height;
-    // Устанавливаем область вывода по всему окну
-    glViewport(0, 0, width, height); // координаты (0,0) - нижний левый угол, далее ширина и высота
-}
+    glViewport(0, 0, width, height); }
 
-// Функция обратного вызова для обработки нажатия клавиш
-// Если нажата клавиша Escape, устанавливаем флаг закрытия окна
 void glfwKeyCallback(GLFWwindow* pwindow, int key, int scancode, int action, int mode) {
-    // Если нажата клавиша ESC и действие - нажатие (PRESS)
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        // Устанавливаем флаг, чтобы основной цикл знал, что пора закрывать окно
         glfwSetWindowShouldClose(pwindow, GL_TRUE);
+    }
+
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+        isGrass = !isGrass;
     }
 }
 
@@ -59,8 +57,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    // Устанавливаем параметры для создаваемого окна:
-    // Указываем требуемую версию OpenGL (4.6) и профиль (core)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -90,7 +86,6 @@ int main(int argc, char** argv) {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    // Устанавливаем цвет очистки экрана (зеленый фон)
     glClearColor(100, 0, 52, 1);
 
     {   // изменение области видимости для того что бы обьект ResourceManager успел уничтожиться до выхода из контекста openGL 
@@ -143,13 +138,13 @@ int main(int argc, char** argv) {
         rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rock_red",1000000000));
         rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rocky_ground", 1000000000));
 
-        std::vector<std::pair<std::string, uint64_t>> grassStates;
-        grassStates.emplace_back(std::make_pair<std::string, uint64_t>("grass_sparse", 1000000000));
-        grassStates.emplace_back(std::make_pair<std::string, uint64_t>("grass_lush", 1000000000));
+        std::vector<std::pair<std::string, uint64_t>> stoneStates;
+        stoneStates.emplace_back(std::make_pair<std::string, uint64_t>("stone_dark", 1000000000));
+        stoneStates.emplace_back(std::make_pair<std::string, uint64_t>("stone_wall", 1000000000));
 
         pAnimatedSprite->insertState("rockState", std::move(rockStates));
-        pAnimatedSprite->insertState("grassState", std::move(grassStates));
-        pAnimatedSprite->setState("rockState");
+        pAnimatedSprite->insertState("stoneState", std::move(stoneStates));
+        pAnimatedSprite->setState("stoneState");
 
         // Создаем буфер для хранения вершинных координат (VBO для точек)
         GLuint points_vbo = 0;
@@ -209,15 +204,28 @@ int main(int argc, char** argv) {
         pSpriteShaderProgram->setInt("tex", 0);
         pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
-        // Основной цикл рендеринга: выполняется, пока окно не будет закрыто
+        auto lastTime = std::chrono::high_resolution_clock::now();
+
         while (!glfwWindowShouldClose(pwindow))
         {
+
+            if (isGrass) {
+                pAnimatedSprite->setState("rockState");
+            }
+            else {
+                pAnimatedSprite->setState("stoneState");
+            }
+
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            uint64_t duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - lastTime).count();
+            lastTime = currentTime;
+            pAnimatedSprite->update(duration);
+
             glClear(GL_COLOR_BUFFER_BIT);
 
             pDefaultShaderProgram->use();
-            // Привязываем VAO, содержащий настройки для вершин и цветов
             glBindVertexArray(vao);
-            tex->bind(); // делаем текстуру активной
+            tex->bind();            
 
             pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix1);
             glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -228,10 +236,11 @@ int main(int argc, char** argv) {
     
             pSprite->render();
 
+            pAnimatedSprite->render();
+
             // Обмен переднего и заднего буферов, чтобы отобразить нарисованное изображение
             glfwSwapBuffers(pwindow);
 
-            // Обработка событий (например, ввод с клавиатуры, изменение размеров окна)
             glfwPollEvents();
         }
     }

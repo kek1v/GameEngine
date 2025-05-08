@@ -12,7 +12,22 @@
 //#define	STBI_ONLY_JP
 #include "stb_image.h"
 
-ResourceManager::ResourceManager(const std::string& executablePath) {
+ResourceManager::ShaderProgramsMap ResourceManager::m_shaderPrograms;
+ResourceManager::TexturesMap ResourceManager::m_textures;
+ResourceManager::SpritesMap ResourceManager::m_sprites;
+std::string ResourceManager::m_Path;
+ResourceManager::AnimatedSpritesMap ResourceManager::m_animatedSprites;
+
+void ResourceManager::unloadAllResources() {
+	m_shaderPrograms.clear();
+ 	m_textures.clear();
+	m_animatedSprites.clear();
+ 	m_Path.clear();
+	m_sprites.clear();
+	m_animatedSprites.clear();
+}
+
+void ResourceManager::setExecutablePath(const std::string& executablePath) {
 
 	// берем путь к экзешнику и берем из этой строки подстроку с 0 символа до последнего слэша
 	size_t found = executablePath.find_last_of("/\\");
@@ -20,7 +35,7 @@ ResourceManager::ResourceManager(const std::string& executablePath) {
 
 }
 
-std::string ResourceManager::getFileString(const std::string& relativePath) const{
+std::string ResourceManager::getFileString(const std::string& relativePath) {
 	std::ifstream f;
 	f.open(m_Path + "/" + relativePath.c_str(), std::ios::in | std::ios::binary);
 	if (!f.is_open()) {

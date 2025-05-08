@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDART 17)
 
 add_executable(${PROJECT_NAME} 
     src/main.cpp
+    src/Game/game.cpp
+    src/Game/game.hpp
     src/Renderer/ShaderProgram.cpp
     src/Renderer/ShaderProgram.hpp
     src/Renderer/Texture2D.cpp

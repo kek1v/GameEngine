@@ -12,9 +12,10 @@
 #include"Renderer/Texture2D.hpp"
 #include"Renderer/Sprite.hpp"
 #include"Renderer/AnimatedSprite.hpp"
+#include"Game/game.hpp"
 
+game g_game;
 glm::vec2 g_windowSize(640, 480);
-bool isGrass = false;
 
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height) {
     g_windowSize.x = width; 
@@ -25,30 +26,8 @@ void glfwKeyCallback(GLFWwindow* pwindow, int key, int scancode, int action, int
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(pwindow, GL_TRUE);
     }
-
-    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
-        isGrass = !isGrass;
-    }
+    g_game.setKey(key, action);
 }
-
-GLfloat point[] = {
-     0.0f,  50.f, 0.0f,
-     50.f, -50.f, 0.0f,
-    -50.f, -50.f, 0.0f
-};
-
-GLfloat colors[] = {
-    1.0f, 0.0f, 0.0f,   
-    0.0f, 1.0f, 0.0f,   
-    0.0f, 0.0f, 1.0f    
-};
-
-GLfloat texCoords[] = {
-    0.5f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f
-};
-
 
 int main(int argc, char** argv) {
 
@@ -86,108 +65,86 @@ int main(int argc, char** argv) {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(100, 0, 52, 1);
+    glClearColor(0, 0, 0, 1);
 
     {   // изменение области видимости для того что бы обьект ResourceManager успел уничтожиться до выхода из контекста openGL 
-        ResourceManager resourceManager(argv[0]);
-        auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+        ResourceManager::setExecutablePath(argv[0]);
+        auto pDefaultShaderProgram = ResourceManager::loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
         if (!pDefaultShaderProgram) {
             std::cerr << "Can't create shader program: " << "DefaultShader" << std::endl;
             return -1;
         }
 
-        auto pSpriteShaderProgram = resourceManager.loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
+        auto pSpriteShaderProgram = ResourceManager::loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
         if (!pSpriteShaderProgram) {
             std::cerr << "Can't create sprite shader program: " << "DefaultSprite" << std::endl;
             return -1;
         }
 
-        auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/triangle_texture.jpg");
+        auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
 
-        std::vector<std::string> subTexturesNames = { // см в tex_atlas1.png
-            // Ряд 1
-            "sand",             // Песок
-            "wood_bark",        // Древесная кора
-            "cliff_dark",       // Темная скала
-            "cliff_striated",   // Слоистая скала
-            // Ряд 2
-            "gravel",           // Гравий/Асфальт
-            "grass_sparse",     // Редкая трава
-            "grass_lush",       // Густая трава
-            "mossy_ground",     // Мшистая земля
-            // Ряд 3
-            "dry_leaves",       // Сухие листья/Лесная подстилка
-            "soil_gravel",      // Почва с гравием
-            "rock_red",         // Красный камень/Скала
-            "rocky_ground",     // Каменистая земля
-            // Ряд 4
-            "snow",             // Снег
-            "stone_dark",       // Темный камень
-            "stone_wall",       // Каменная стена
-            "cobblestone"       // Брусчатка/Булыжник
+        std::vector<std::string> subTexturesNames = { // см в map16x16        
+            "block",
+            "topBlock",
+            "bottomBlock",
+            "leftBlock",
+            "rightBlock",
+            "topLeftBlock",
+            "topRightBlock",
+            "bottomLeftBlock",
+            "bottomRightBlock",
+
+            "beton",
+            "topBeton",
+            "bottomBeton",
+            "leftBeton",
+            "rightBeton",
+            "topLeftBeton",
+            "topRightBeton",
+            "bottomLeftBeton",
+            "bottomRightBeton",
+
+            "water1",
+			"water2",
+		    "water3",
+
+            "trees",
+            "ice",
+            "wall",            
+            "nothing",
+
+            "eagle",
+            "deadEagle"
+
+            "respawn1",
+            "respawn2",
+            "respawn3",
+            "respawn4"
         };        
         
-        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/tex_atlas1.png", std::move(subTexturesNames), 128, 128);
+        auto pTextureAtlas = ResourceManager::loadTextureAtlas("DefaultTextureAtlas", "res/textures/map_16x16.png", std::move(subTexturesNames), 16, 16);
         
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "wood_bark");
+        auto pSprite = ResourceManager::loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "ice");
         pSprite->setPosition(glm::vec2(280, 100));
 
-        auto pAnimatedSprite = resourceManager.loadAnimatedSprite("NewAnimatedSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "rock_red");
+        auto pAnimatedSprite = ResourceManager::loadAnimatedSprite("NewAnimatedSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "water");
         pAnimatedSprite->setPosition(glm::vec2(400, 250));
-        std::vector<std::pair<std::string, uint64_t>> rockStates;
-        rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rock_red",1000000000));
-        rockStates.emplace_back(std::make_pair<std::string, uint64_t>("rocky_ground", 1000000000));
+        std::vector<std::pair<std::string, uint64_t>> waterStates;
+        waterStates.emplace_back(std::make_pair<std::string, uint64_t>("water1",1000000000));
+        waterStates.emplace_back(std::make_pair<std::string, uint64_t>("water2", 1000000000));
+        waterStates.emplace_back(std::make_pair<std::string, uint64_t>("water3", 1000000000));
 
-        std::vector<std::pair<std::string, uint64_t>> stoneStates;
-        stoneStates.emplace_back(std::make_pair<std::string, uint64_t>("stone_dark", 1000000000));
-        stoneStates.emplace_back(std::make_pair<std::string, uint64_t>("stone_wall", 1000000000));
 
-        pAnimatedSprite->insertState("rockState", std::move(rockStates));
-        pAnimatedSprite->insertState("stoneState", std::move(stoneStates));
-        pAnimatedSprite->setState("stoneState");
+        std::vector<std::pair<std::string, uint64_t>> eagleStates;
+        eagleStates.emplace_back(std::make_pair<std::string, uint64_t>("eagle", 1000000000));
+        eagleStates.emplace_back(std::make_pair<std::string, uint64_t>("deadEagle", 1000000000));
 
-        // Создаем буфер для хранения вершинных координат (VBO для точек)
-        GLuint points_vbo = 0;
-        glGenBuffers(1, &points_vbo); // Генерируем идентификатор буфера
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем буфер к типу GL_ARRAY_BUFFER
-        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW); // Загружаем данные вершин
-
-        glGenBuffers(1, &points_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW);
-
-        // Создаем буфер для хранения цветов вершин (VBO для цветов)
-        GLuint texCoord_vbo = 0;
-        glGenBuffers(1, &texCoord_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, texCoord_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW); // Загружаем данные цветов
-
-        // Создаем объект вершинного массива (VAO)
-        // VAO хранит информацию о том, как привязаны VBO и их атрибуты
-        GLuint vao = 0;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        // Настраиваем атрибут для вершин (позиция):
-        glEnableVertexAttribArray(0); // Включаем атрибут с location = 0 (позиция)
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Привязываем соответствующий VBO
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных:
-        // 3 компоненты на вершину, тип данных GL_FLOAT, без нормализации, без промежутка между элементами
-
-        // Настраиваем атрибут для цветов:
-        GLuint colors_vbo = 0;
-        glEnableVertexAttribArray(1); // Включаем атрибут с location = 1 (цвет)
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Привязываем VBO для цветов
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Определяем формат данных для цветов
-
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, texCoord_vbo);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+        pAnimatedSprite->insertState("waterState", std::move(waterStates));
+        pAnimatedSprite->insertState("eagleState", std::move(eagleStates));
+        pAnimatedSprite->setState("eagleState");
 
         pDefaultShaderProgram->use();
         pDefaultShaderProgram->setInt("tex", 0);
-
-
 
         glm::mat4 modelMatrix1 = glm::mat4(1.f); // единичная матрица (она не выполняет никаких преобразований)
         modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(100.f, 200.f, 0.f)); // переместили нашу modelMatrix на vec3
@@ -208,24 +165,12 @@ int main(int argc, char** argv) {
 
         while (!glfwWindowShouldClose(pwindow))
         {
-
-            if (isGrass) {
-                pAnimatedSprite->setState("rockState");
-            }
-            else {
-                pAnimatedSprite->setState("stoneState");
-            }
-
             auto currentTime = std::chrono::high_resolution_clock::now();
             uint64_t duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - lastTime).count();
             lastTime = currentTime;
             pAnimatedSprite->update(duration);
 
             glClear(GL_COLOR_BUFFER_BIT);
-
-            pDefaultShaderProgram->use();
-            glBindVertexArray(vao);
-            tex->bind();            
 
             pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix1);
             glDrawArrays(GL_TRIANGLES, 0, 3);

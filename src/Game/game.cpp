@@ -1,4 +1,5 @@
-#include "game.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <vec2.hpp>
 #include <mat4x4.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -12,12 +13,15 @@
 #include "../Renderer/Shaderprogram.hpp"
 #include "../Renderer/AnimatedSprite.hpp"
 
+#include "Tank.hpp"
+#include "game.hpp"
 
-game::game(const glm::ivec2& windowSize) 
+
+game::game(const glm::ivec2& windowSize)
     : m_eCurrentGameState(EGameState::Active)
-    , m_windowSize(windowSize){
+    , m_windowSize(windowSize) {
 
-	m_Keys.fill(false);
+    m_Keys.fill(false);
 }
 
 game::~game() {
@@ -25,11 +29,35 @@ game::~game() {
 }
 
 void game::render() {
-    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->render();
+    //ResourceManager::getAnimatedSprite("NewAnimatedSprite")->render();
+    if (m_pTank) {
+        m_pTank->render();
+    }
 }
 
 void game::update(const uint64_t delta) {
-    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->update(delta);
+    //ResourceManager::getAnimatedSprite("NewAnimatedSprite")->update(delta);
+    if (m_pTank) {
+        if (m_Keys[GLFW_KEY_W]) {
+            m_pTank->setOrientation(Tank::eOrientation::Top);
+            m_pTank->move(true);
+        }
+        else if (m_Keys[GLFW_KEY_A]){
+            m_pTank->setOrientation(Tank::eOrientation::left);
+            m_pTank->move(true);
+        }
+        else if (m_Keys[GLFW_KEY_S]){
+            m_pTank->setOrientation(Tank::eOrientation::Bottom);
+            m_pTank->move(true);
+        }
+        else if (m_Keys[GLFW_KEY_D]){
+            m_pTank->setOrientation(Tank::eOrientation::right);
+            m_pTank->move(true);
+        }else {
+            m_pTank->move(false);
+        }
+        m_pTank->update(delta);
+    }
 }
 
 void game::setKey(const int key, const int action) {
@@ -123,6 +151,46 @@ bool game::init() {
     pSpriteShaderProgram->use();
     pSpriteShaderProgram->setInt("tex", 0);
     pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
+
+
+    std::vector<std::string> TanksSubTexturesNames = {
+        "tankTop1",
+        "tankTop2",
+        "tankLeft1",
+        "tankLeft2",
+        "tankBottom1",
+        "tankBottom2",
+        "tankRight1",
+        "tankRight2"
+    };
+
+    auto pTanksTextureAtlas = ResourceManager::loadTextureAtlas("TanksTextureAtlas", "res/textures/tanks.png", std::move(TanksSubTexturesNames), 16, 16);
+    auto pTanksAnimatedSprite = ResourceManager::loadAnimatedSprite("TanksAnimatedSprite", "TanksTextureAtlas", "SpriteShader", 100, 100, "tankTop1");
+
+    std::vector<std::pair<std::string, uint64_t>> tankTopStates;
+    tankTopStates.emplace_back(std::make_pair<std::string, uint64_t>("tankTop1", 500000000));
+    tankTopStates.emplace_back(std::make_pair<std::string, uint64_t>("tankTop2", 500000000));
+
+    std::vector<std::pair<std::string, uint64_t>> tankLeftStates;
+    tankLeftStates.emplace_back(std::make_pair<std::string, uint64_t>("tankLeft1", 500000000));
+    tankLeftStates.emplace_back(std::make_pair<std::string, uint64_t>("tankLeft2", 500000000));
+
+    std::vector<std::pair<std::string, uint64_t>> tankBottomStates;
+    tankBottomStates.emplace_back(std::make_pair<std::string, uint64_t>("tankBottom1", 500000000));
+    tankBottomStates.emplace_back(std::make_pair<std::string, uint64_t>("tankBottom2", 500000000));
+
+    std::vector<std::pair<std::string, uint64_t>> tankRightStates;
+    tankRightStates.emplace_back(std::make_pair<std::string, uint64_t>("tankRight1", 500000000));
+    tankRightStates.emplace_back(std::make_pair<std::string, uint64_t>("tankRight2", 500000000));
+
+    pTanksAnimatedSprite->insertState("tankTopState", std::move(tankTopStates));
+    pTanksAnimatedSprite->insertState("tankLeftState", std::move(tankLeftStates));
+    pTanksAnimatedSprite->insertState("tankBottomState", std::move(tankBottomStates));
+    pTanksAnimatedSprite->insertState("tankRightState", std::move(tankRightStates));
+
+    pTanksAnimatedSprite->setState("tankTopState");
+    m_pTank = std::make_unique<Tank>(pTanksAnimatedSprite, 0.0000001f, glm::vec2(100.f, 100.f));
 
     return true;
 }

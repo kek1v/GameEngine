@@ -1,7 +1,10 @@
 #pragma once
 #include <cstdint>
 #include <array>
+#include <memory>
 #include <vec2.hpp>
+
+class Tank;
 
 class game {
 public:
@@ -13,7 +16,7 @@ public:
 	void setKey(const int key, const int action);
 	bool init();
 
-private:
+protected:
 	std::array<bool, 349> m_Keys;
 
 	enum class EGameState {
@@ -23,4 +26,5 @@ private:
 	
 	const glm::ivec2 m_windowSize;
 	EGameState m_eCurrentGameState;
+	std::unique_ptr<Tank> m_pTank;
 };

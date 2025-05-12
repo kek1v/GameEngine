@@ -9,6 +9,8 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Game/game.cpp
     src/Game/game.hpp
+    src/Game/Tank.cpp
+    src/Game/Tank.hpp
     src/Renderer/ShaderProgram.cpp
     src/Renderer/ShaderProgram.hpp
     src/Renderer/Texture2D.cpp

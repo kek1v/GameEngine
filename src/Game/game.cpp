@@ -132,7 +132,7 @@ bool game::init() {
 
     pAnimatedSprite->insertState("waterState", std::move(waterStates));
     pAnimatedSprite->insertState("eagleState", std::move(eagleStates));
-    pAnimatedSprite->setState("eagleState");
+    pAnimatedSprite->setState("waterState");
 
     pDefaultShaderProgram->use();
     pDefaultShaderProgram->setInt("tex", 0);

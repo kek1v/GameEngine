@@ -38,5 +38,6 @@ namespace Renderer {
 		GLuint m_VAO;
 		GLuint m_vertexCoordsVBO;
 		GLuint m_textureCoordsVBO;
+		GLuint m_EBO;
 	};
 }

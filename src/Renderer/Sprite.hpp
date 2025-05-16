@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glad/glad.h>
+#include"VertexBuffer.hpp"
+#include"IndexBuffer.hpp"
 #include <vec2.hpp>
 
 #include <memory>
@@ -36,6 +38,10 @@ namespace Renderer {
 		glm::vec2 m_position;
 		float m_rotation;
 		GLuint m_VAO;
+
+		VertexBuffer m_vertexCoordsBuffer;
+		VertexBuffer m_textureCoordsBuffer;
+		IndexBuffer	 m_indexBuffer;
 		GLuint m_vertexCoordsVBO;
 		GLuint m_textureCoordsVBO;
 		GLuint m_EBO;

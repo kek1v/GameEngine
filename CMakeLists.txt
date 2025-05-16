@@ -11,6 +11,10 @@ add_executable(${PROJECT_NAME}
     src/Game/game.hpp
     src/Game/Tank.cpp
     src/Game/Tank.hpp
+    src/Renderer/VertexBuffer.cpp
+    src/Renderer/VertexBuffer.hpp
+    src/Renderer/IndexBuffer.cpp
+    src/Renderer/IndexBuffer.hpp
     src/Renderer/ShaderProgram.cpp
     src/Renderer/ShaderProgram.hpp
     src/Renderer/Texture2D.cpp

@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include"VertexBuffer.hpp"
 #include"IndexBuffer.hpp"
+#include"VertexArray.hpp"
 #include <vec2.hpp>
 
 #include <memory>
@@ -21,7 +22,6 @@ namespace Renderer {
 			   const glm::vec2& size = glm::vec2(1.f),
 			   const float rotation = 0.f);
 
-		~Sprite();
 
 		Sprite(const Sprite&) = delete;
 		Sprite& operator=(const Sprite&) = delete;
@@ -37,13 +37,10 @@ namespace Renderer {
 		glm::vec2 m_size;
 		glm::vec2 m_position;
 		float m_rotation;
-		GLuint m_VAO;
 
+		VertexArray m_vertexArray;
 		VertexBuffer m_vertexCoordsBuffer;
 		VertexBuffer m_textureCoordsBuffer;
 		IndexBuffer	 m_indexBuffer;
-		GLuint m_vertexCoordsVBO;
-		GLuint m_textureCoordsVBO;
-		GLuint m_EBO;
 	};
 }

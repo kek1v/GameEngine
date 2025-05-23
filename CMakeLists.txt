@@ -11,6 +11,8 @@ add_executable(${PROJECT_NAME}
     src/Game/game.hpp
     src/Game/Tank.cpp
     src/Game/Tank.hpp
+    src/Renderer/VertexBufferLayout.cpp
+    src/Renderer/VertexBufferLayout.hpp
     src/Renderer/VertexArray.cpp
     src/Renderer/VertexArray.hpp
     src/Renderer/VertexBuffer.cpp

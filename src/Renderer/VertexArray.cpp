@@ -1,7 +1,7 @@
 #include"VertexArray.hpp"
 #include<memory>
 
-namespace Renderer {
+namespace RendererEngine {
 
 	VertexArray::VertexArray()
 	{

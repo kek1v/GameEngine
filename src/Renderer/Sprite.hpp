@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 
-namespace Renderer {
+namespace RendererEngine {
 	class Texture2D;
 	class ShaderProgram;
 

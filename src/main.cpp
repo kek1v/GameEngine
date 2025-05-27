@@ -13,6 +13,7 @@
 #include"Renderer/Sprite.hpp"
 #include"Renderer/AnimatedSprite.hpp"
 #include"Game/game.hpp"
+#include"Renderer/Renderer.hpp"
 
 glm::ivec2 g_windowSize(640, 480);
 game g_game(g_windowSize);
@@ -66,7 +67,7 @@ int main(int argc, char** argv) {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(0, 0, 0, 1);
+    RendererEngine::Renderer::setClearColor(0, 0, 0, 0);
 
     {   // изменение области видимости для того что бы обьект ResourceManager успел уничтожиться до выхода из контекста openGL 
         ResourceManager::setExecutablePath(argv[0]);

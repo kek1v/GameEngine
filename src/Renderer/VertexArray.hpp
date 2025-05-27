@@ -3,7 +3,7 @@
 #include"VertexBuffer.hpp"
 #include"VertexBufferLayout.hpp"
 
-namespace Renderer {
+namespace RendererEngine {
 	class VertexArray {
 	public:
 		VertexArray();

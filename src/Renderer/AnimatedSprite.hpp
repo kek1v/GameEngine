@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-namespace Renderer {
+namespace RendererEngine {
 	class AnimatedSprite : public Sprite{
 	public:
 		AnimatedSprite(std::shared_ptr<Texture2D> pTexture,

@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <mat4x4.hpp>
 
-namespace Renderer {
+namespace RendererEngine {
 	class ShaderProgram {
 	public:
 		ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);

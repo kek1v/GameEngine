@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace Renderer {
+namespace RendererEngine {
 
 	// Конструктор класса ShaderProgram, который принимает исходники вершинного и фрагментного шейдеров
 	ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader) {

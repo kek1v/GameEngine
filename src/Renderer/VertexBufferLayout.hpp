@@ -3,7 +3,7 @@
 #include<vector>
 #include<glad/glad.h>
 
-namespace Renderer {
+namespace RendererEngine {
 
 	struct vertexBufferLayoutElement {
 		GLuint count;

@@ -29,14 +29,14 @@ game::~game() {
 }
 
 void game::render() {
-    //ResourceManager::getAnimatedSprite("NewAnimatedSprite")->render();
+    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->render();
     if (m_pTank) {
         m_pTank->render();
     }
 }
 
 void game::update(const uint64_t delta) {
-    //ResourceManager::getAnimatedSprite("NewAnimatedSprite")->update(delta);
+    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->update(delta);
     if (m_pTank) {
         if (m_Keys[GLFW_KEY_W]) {
             m_pTank->setOrientation(Tank::eOrientation::Top);
@@ -79,7 +79,7 @@ bool game::init() {
 
     auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
 
-    std::vector<std::string> subTexturesNames = { // см в map16x16        
+    std::vector<std::string> subTexturesNames = {
         "block",
         "topBlock",
         "bottomBlock",
@@ -108,7 +108,7 @@ bool game::init() {
         "wall",
 
         "eagle",
-        "deadEagle"
+        "deadEagle",        
         "nothing",
         "respawn1",
         "respawn2",
@@ -116,7 +116,7 @@ bool game::init() {
         "respawn4"
     };
 
-    auto pTextureAtlas = ResourceManager::loadTextureAtlas("DefaultTextureAtlas", "res/textures/map_16x16.png", std::move(subTexturesNames), 16, 16);
+    auto pTextureAtlas = ResourceManager::loadTextureAtlas("DefaultTextureAtlas", "res/textures/map_16x16.png", std::move(subTexturesNames), 4, 8);
 
     auto pAnimatedSprite = ResourceManager::loadAnimatedSprite("NewAnimatedSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "water");
     pAnimatedSprite->setPosition(glm::vec2(400, 250));
@@ -133,6 +133,7 @@ bool game::init() {
     pAnimatedSprite->insertState("waterState", std::move(waterStates));
     pAnimatedSprite->insertState("eagleState", std::move(eagleStates));
     pAnimatedSprite->setState("waterState");
+
 
     pDefaultShaderProgram->use();
     pDefaultShaderProgram->setInt("tex", 0);

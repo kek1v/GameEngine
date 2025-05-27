@@ -1,7 +1,7 @@
 #include"VertexBufferLayout.hpp"
 #include <vector>
 
-namespace Renderer {
+namespace RendererEngine {
 	VertexBufferLayout::VertexBufferLayout() 
 		: m_stride(0)
 	{

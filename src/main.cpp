@@ -22,7 +22,8 @@ game g_game(g_windowSize);
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height) {
     g_windowSize.x = width; 
     g_windowSize.y = height;
-    glViewport(0, 0, width, height); }
+    RendererEngine::Renderer::setViewport(width, height);
+}
 
 void glfwKeyCallback(GLFWwindow* pwindow, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -64,8 +65,8 @@ int main(int argc, char** argv) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Вывод информации о рендерере и версии OpenGL в консоль
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Renderer: " << RendererEngine::Renderer::getRendererStr() << std::endl;
+    std::cout << "OpenGL version: " << RendererEngine::Renderer::getVersionStr() << std::endl;
 
     RendererEngine::Renderer::setClearColor(0, 0, 0, 0);
 
@@ -82,7 +83,7 @@ int main(int argc, char** argv) {
             lastTime = currentTime;
             g_game.update(duration);
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            RendererEngine::Renderer::clear();
 
             g_game.render();
 

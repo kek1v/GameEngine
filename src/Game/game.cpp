@@ -29,14 +29,14 @@ game::~game() {
 }
 
 void game::render() {
-    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->render();
+    ResourceManager::getAnimatedSprite("NewAnimatedHuman")->render();
     if (m_pTank) {
         m_pTank->render();
     }
 }
 
 void game::update(const uint64_t delta) {
-    ResourceManager::getAnimatedSprite("NewAnimatedSprite")->update(delta);
+    ResourceManager::getAnimatedSprite("NewAnimatedHuman")->update(delta);
     if (m_pTank) {
         if (m_Keys[GLFW_KEY_W]) {
             m_pTank->setOrientation(Tank::eOrientation::Top);
@@ -77,8 +77,9 @@ bool game::init() {
         return -1;
     }
 
-    auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
-
+   // auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
+    auto tex = ResourceManager::loadTexture("HumanAnimations", "res/texture/character_base_16x16.png");
+/*
     std::vector<std::string> subTexturesNames = {
         "block",
         "topBlock",
@@ -116,6 +117,7 @@ bool game::init() {
         "respawn4"
     };
 
+
     auto pTextureAtlas = ResourceManager::loadTextureAtlas("DefaultTextureAtlas", "res/textures/map_16x16.png", std::move(subTexturesNames), 4, 8);
 
     auto pAnimatedSprite = ResourceManager::loadAnimatedSprite("NewAnimatedSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "water");
@@ -133,7 +135,39 @@ bool game::init() {
     pAnimatedSprite->insertState("waterState", std::move(waterStates));
     pAnimatedSprite->insertState("eagleState", std::move(eagleStates));
     pAnimatedSprite->setState("waterState");
+*/
 
+// ¬“ќ–ќ… ј“Ћј—     
+    std::vector<std::string> subTexturesNames2 = {
+        // ѕервый р€д Ч движение вниз
+        "down_idle", "down_walk1", "down_walk2", "down_walk3",
+
+        // ¬торой р€д Ч движение влево
+        "left_idle", "left_walk1", "left_walk2", "left_walk3",
+
+        // “ретий р€д Ч движение вправо
+        "right_idle", "right_walk1", "right_walk2", "right_walk3",
+
+        // „етвЄртый р€д Ч движение вверх
+        "up_idle", "up_walk1", "up_walk2", "up_walk3",
+
+        // ѕ€тый р€д Ч прочее, можно под свои нужды
+        "misc1", "misc2", "misc3", "misc4"
+    };
+
+    auto pTextureAtlas2 = ResourceManager::loadTextureAtlas("HumanAnimations", "res/texture/character_base_16x16.png", std::move(subTexturesNames2), 8, 8);
+
+    auto pAnimatedHuman = ResourceManager::loadAnimatedSprite("NewAnimatedHuman", "HumanAnimations", "SpriteShader", 100, 100, "down_idle");
+    pAnimatedHuman->setPosition(glm::vec2(400, 250));
+    std::vector<std::pair<std::string, uint64_t>> downWalkStates;
+    downWalkStates.emplace_back(std::make_pair<std::string, uint64_t>("down_idle", 1000000000));
+    downWalkStates.emplace_back(std::make_pair<std::string, uint64_t>("down_walk1", 1000000000));
+    downWalkStates.emplace_back(std::make_pair<std::string, uint64_t>("down_walk2", 1000000000));
+    downWalkStates.emplace_back(std::make_pair<std::string, uint64_t>("down_walk3", 1000000000));
+
+
+    pAnimatedHuman->insertState("downWalkStates", std::move(downWalkStates));
+    pAnimatedHuman->setState("downWalkStates");
 
     pDefaultShaderProgram->use();
     pDefaultShaderProgram->setInt("tex", 0);

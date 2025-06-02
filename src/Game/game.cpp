@@ -78,7 +78,7 @@ bool game::init() {
     }
 
    // auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
-    auto tex = ResourceManager::loadTexture("HumanAnimations", "res/texture/character_base_16x16.png");
+    auto tex = ResourceManager::loadTexture("HumanAnimations", "res/textures/character_base_16x16.png");
 /*
     std::vector<std::string> subTexturesNames = {
         "block",
@@ -155,7 +155,7 @@ bool game::init() {
         "misc1", "misc2", "misc3", "misc4"
     };
 
-    auto pTextureAtlas2 = ResourceManager::loadTextureAtlas("HumanAnimations", "res/texture/character_base_16x16.png", std::move(subTexturesNames2), 8, 8);
+    auto pTextureAtlas2 = ResourceManager::loadTextureAtlas("HumanAnimations", "res/textures/character_base_16x16.png", std::move(subTexturesNames2), 16, 16);
 
     auto pAnimatedHuman = ResourceManager::loadAnimatedSprite("NewAnimatedHuman", "HumanAnimations", "SpriteShader", 100, 100, "down_idle");
     pAnimatedHuman->setPosition(glm::vec2(400, 250));

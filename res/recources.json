@@ -22,6 +22,96 @@
                 "up_idle", "up_walk1", "up_walk2", "up_walk3",
                 "misc1", "misc2", "misc3", "misc4"
             ]
+        },
+
+        {
+            "name" : "TankTextureAtlas",
+            "filePath" : "res/textures/tanks.png",
+            "width" : 256,
+            "height" : 256,
+            "SubtextureWidth" : 16,
+            "SubtextureHeight" : 16,
+            "SubTexture" : [
+                "yelowType1_Top1",
+                "yelowType1_Top2",
+                "yelowType1_Left1",
+                "yelowType1_Left2",
+                "yelowType1_Bottom1",
+                "yelowType1_Bottom2",
+                "yelowType1_right1",
+                "yelowType1_right2"
+            ]
+        }
+
+    ],
+
+    "animatedSprites" : [
+        {
+            "name" : "tankAnimatedSprite",
+            "textureAtlas" : "tankstextureAtlas",
+            "shader" : "SpriteShader",
+            "initialWidth" : 100,
+            "initialheight" : 100,
+            "initialSubtexture" : "yelowType1_Top1",
+            "states": [
+                {
+                    "stateName" : "tankTopState",
+                    "frames" : [
+                        {
+                            "subTexture" : "yelowType1_Top1",
+                            "duration" : 500000000
+                        }
+                                                {
+                            "subTexture" : "yelowType1_Top2",
+                            "duration" : 500000000
+                        }
+                    ]
+                },
+
+                {
+                    "stateName" : "tankLeftStates",
+                    "frames" : [
+                        {
+                            "subTexture" : "yelowType1_Left1",
+                            "duration" : 500000000
+                        }
+                                                {
+                            "subTexture" : "yelowType1_Left2",
+                            "duration" : 500000000
+                        }
+                    ]
+                },
+
+                {
+                    "stateName" : "tankBottomStates",
+                    "frames" : [
+                        {
+                            "subTexture" : "yelowType1_Bottom1",
+                            "duration" : 500000000
+                        }
+                                                {
+                            "subTexture" : "yelowType1_Bottom2",
+                            "duration" : 500000000
+                        }
+                    ]
+                },
+
+                {
+                    "stateName" : "tankRightStates",
+                    "frames" : [
+                        {
+                            "subTexture" : "yelowType1_right1",
+                            "duration" : 500000000
+                        }
+                                                {
+                            "subTexture" : "yelowType1_right2",
+                            "duration" : 500000000
+                        }
+                    ]
+                }
+
+            ]
+
         }
     ]
     

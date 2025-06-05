@@ -65,17 +65,10 @@ void game::setKey(const int key, const int action) {
 }
 
 bool game::init() {
-    auto pDefaultShaderProgram = ResourceManager::loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
-    if (!pDefaultShaderProgram) {
-        std::cerr << "Can't create shader program: " << "DefaultShader" << std::endl;
-        return -1;
-    }
 
-    auto pSpriteShaderProgram = ResourceManager::loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
-    if (!pSpriteShaderProgram) {
-        std::cerr << "Can't create sprite shader program: " << "DefaultSprite" << std::endl;
-        return -1;
-    }
+    ResourceManager::loadJSONresources("res/resources.json");
+
+    auto pSpriteShaderProgram = ResourceManager::getShaderProgram("SpriteShader");
 
    // auto tex = ResourceManager::loadTexture("DefaultTexture", "res/textures/map_16x16.png");
     auto tex = ResourceManager::loadTexture("HumanAnimations", "res/textures/character_base_16x16.png");
@@ -169,8 +162,6 @@ bool game::init() {
     pAnimatedHuman->insertState("downWalkStates", std::move(downWalkStates));
     pAnimatedHuman->setState("downWalkStates");
 
-    pDefaultShaderProgram->use();
-    pDefaultShaderProgram->setInt("tex", 0);
 
     glm::mat4 modelMatrix1 = glm::mat4(1.f); // единичная матрица (она не выполняет никаких преобразований)
     modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(100.f, 200.f, 0.f)); // переместили нашу modelMatrix на vec3
@@ -180,8 +171,6 @@ bool game::init() {
 
     // теперь перемножаем на projection matrix
     glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(m_windowSize.x), 0.f, static_cast<float>(m_windowSize.y), -100.f, 100.f);
-
-    pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
     pSpriteShaderProgram->use();
     pSpriteShaderProgram->setInt("tex", 0);

@@ -4,6 +4,9 @@
 #include"../Renderer/Sprite.hpp"
 #include"../Renderer/AnimatedSprite.hpp"
 
+#include"rapidjson/document.h"
+#include"rapidjson/error/en.h"
+
 #include<sstream>
 #include<fstream>
 #include<iostream>
@@ -218,4 +221,30 @@ std::shared_ptr<RendererEngine::Texture2D>  ResourceManager::loadTextureAtlas(co
 	}
 	
 	return pTexture;
+}
+
+bool ResourceManager::loadJSONresources(const std::string& JSONpath){
+	const std::string JSONstring = getFileString(JSONpath);
+	if (JSONstring.empty()) {
+		std::cerr << "No JSON resources file! " << std::endl;
+		return false;
+	}
+	
+	rapidjson::Document document;
+	rapidjson::ParseResult parseResult = document.Parse(JSONstring.c_str());
+	if (!parseResult) {
+		std::cerr << "json parse error" << rapidjson::GetParseError_En(parseResult.Code()) << "(" << parseResult.Offset() << ")" << std::endl;
+		std::cerr << "In json file: " << JSONpath << std::endl;
+		return false;
+	}
+
+	auto shaderIt = document.FindMember("shaders");
+	if (shaderIt != document.MemberEnd()) {
+		for (const auto& currentShader : shaderIt->value.GetArray()) {
+			const std::string name = currentShader["name"].GetString();
+			const std::string filePath_v = currentShader["filePath_v"].GetString();
+			const std::string filePath_f = currentShader["filePath_f"].GetString();
+			loadShaders(name, filePath_v, filePath_f);
+		}
+	}
 }

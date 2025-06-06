@@ -247,4 +247,24 @@ bool ResourceManager::loadJSONresources(const std::string& JSONpath){
 			loadShaders(name, filePath_v, filePath_f);
 		}
 	}
+
+	auto textureAtlasesIt = document.FindMember("textureAtlases");
+	if (textureAtlasesIt != document.MemberEnd()) {
+		for (const auto& currentTextureAtlas : textureAtlasesIt->value.GetArray()) {
+			const std::string name = currentTextureAtlas["name"].GetString();
+			const std::string filePath = currentTextureAtlas["filePath"].GetString();
+			//const unsigned int width = currentTextureAtlas["width"].GetUint();
+			//const unsigned int height = currentTextureAtlas["height"].GetUint();
+			const unsigned int SubtextureWidth = currentTextureAtlas["SubtextureWidth"].GetUint();
+			const unsigned int SubtextureHeight = currentTextureAtlas["SubtextureHeight"].GetUint();
+
+			const auto subTexturesArray = currentTextureAtlas["SubTextures"].GetArray();
+			std::vector<std::string> subTextures;
+			subTextures.reserve(subTexturesArray.Size());
+			for (const auto& currentSubTextureArray : subTexturesArray) {
+				subTextures.emplace_back(currentSubTextureArray.GetString());
+			}
+			loadTextureAtlas(name, filePath, std::move(subTextures), SubtextureWidth, SubtextureHeight);
+		}
+	}
 }

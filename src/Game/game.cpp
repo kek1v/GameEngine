@@ -96,12 +96,6 @@ bool game::init() {
     pAnimatedHuman->setState("downWalkStates");
 
 
-    glm::mat4 modelMatrix1 = glm::mat4(1.f); // единичная матрица (она не выполняет никаких преобразований)
-    modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(100.f, 200.f, 0.f)); // переместили нашу modelMatrix на vec3
-
-    glm::mat4 modelMatrix2 = glm::mat4(1.f);
-    modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(540.f, 200.f, 0.f));
-
     // теперь перемножаем на projection matrix
     glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(m_windowSize.x), 0.f, static_cast<float>(m_windowSize.y), -100.f, 100.f);
 
@@ -109,30 +103,12 @@ bool game::init() {
     pSpriteShaderProgram->setInt("tex", 0);
     pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
-    auto pTanksAnimatedSprite = ResourceManager::loadAnimatedSprite("TanksAnimatedSprite", "TanksTextureAtlas", "SpriteShader", 100, 100, "tankTop1");
+    auto pTanksAnimatedSprite = ResourceManager::getAnimatedSprite("tankAnimatedSprite");    
+    if (!pTanksTextureAtlas) {
+        std::cerr << "cant find aniamtedSprite: " << "tankAnimatedSprite" << std::endl;
+    }
 
-    std::vector<std::pair<std::string, uint64_t>> tankTopStates;
-    tankTopStates.emplace_back(std::make_pair<std::string, uint64_t>("tankTop1", 500000000));
-    tankTopStates.emplace_back(std::make_pair<std::string, uint64_t>("tankTop2", 500000000));
 
-    std::vector<std::pair<std::string, uint64_t>> tankLeftStates;
-    tankLeftStates.emplace_back(std::make_pair<std::string, uint64_t>("tankLeft1", 500000000));
-    tankLeftStates.emplace_back(std::make_pair<std::string, uint64_t>("tankLeft2", 500000000));
-
-    std::vector<std::pair<std::string, uint64_t>> tankBottomStates;
-    tankBottomStates.emplace_back(std::make_pair<std::string, uint64_t>("tankBottom1", 500000000));
-    tankBottomStates.emplace_back(std::make_pair<std::string, uint64_t>("tankBottom2", 500000000));
-
-    std::vector<std::pair<std::string, uint64_t>> tankRightStates;
-    tankRightStates.emplace_back(std::make_pair<std::string, uint64_t>("tankRight1", 500000000));
-    tankRightStates.emplace_back(std::make_pair<std::string, uint64_t>("tankRight2", 500000000));
-
-    pTanksAnimatedSprite->insertState("tankTopState", std::move(tankTopStates));
-    pTanksAnimatedSprite->insertState("tankLeftState", std::move(tankLeftStates));
-    pTanksAnimatedSprite->insertState("tankBottomState", std::move(tankBottomStates));
-    pTanksAnimatedSprite->insertState("tankRightState", std::move(tankRightStates));
-
-    pTanksAnimatedSprite->setState("tankTopState");
     m_pTank = std::make_unique<Tank>(pTanksAnimatedSprite, 0.0000001f, glm::vec2(100.f, 100.f));
 
     return true;

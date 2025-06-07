@@ -267,4 +267,36 @@ bool ResourceManager::loadJSONresources(const std::string& JSONpath){
 			loadTextureAtlas(name, filePath, std::move(subTextures), SubtextureWidth, SubtextureHeight);
 		}
 	}
+	
+	auto animatedSpritesIt = document.FindMember("animatedSprites");
+	if (animatedSpritesIt != document.MemberEnd()) {
+		for (const auto& CurrentAnimatedSpritesIt : animatedSpritesIt->value.GetArray()) {
+			const std::string name = CurrentAnimatedSpritesIt["name"].GetString();
+			const std::string textureAtlas = CurrentAnimatedSpritesIt["textureAtlas"].GetString();
+			const std::string shader = CurrentAnimatedSpritesIt["SpriteShader"].GetString();
+			const unsigned int initialWidth = CurrentAnimatedSpritesIt["initialWidth"].GetUint();
+			const unsigned int initialheight = CurrentAnimatedSpritesIt["initialheight"].GetUint();
+			const std::string initialSubtexture = CurrentAnimatedSpritesIt["initialSubtexture"].GetString();
+
+			auto pAnimatedSprite = loadAnimatedSprite(name, textureAtlas, shader, initialWidth, initialheight, initialSubtexture);
+			if (!pAnimatedSprite) {
+				continue; // перехожу к некст спрайту
+			}
+
+			const auto statesArray = CurrentAnimatedSpritesIt["states"].GetArray();
+			for (const auto& currentState : statesArray) {
+				const std::string stateName = currentState["stateName"].GetString();
+				std::vector<std::pair<std::string, uint64_t>> frames;
+				const auto framesArray = currentState["frames"].GetArray();
+				frames.reserve(framesArray.Size());
+				for(const auto& currentState : framesArray){
+					const std::string subTexture = currentState["subTexture"].GetString();
+					const uint64_t duration = currentState["duration"].GetUint64();
+					frames.emplace_back(std::pair<std::string, uint64_t>(subTexture, duration));
+				}
+				pAnimatedSprite->insertState(stateName, std::move(frames));
+			}
+		}
+	}
+	return true;
 }

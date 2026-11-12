@@ -1,0 +1,14 @@
+#version 460
+in vec2 texCoords;
+out vec4 frag_color;
+
+uniform sampler2D tex;
+uniform int enemyTint;
+
+void main(){
+   frag_color = texture(tex, texCoords);
+   if (enemyTint != 0) {
+      float brightness = max(frag_color.r, max(frag_color.g, frag_color.b));
+      frag_color.rgb = vec3(brightness, brightness * 0.24, brightness * 0.18);
+   }
+}

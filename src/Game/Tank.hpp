@@ -1,0 +1,36 @@
+#pragma once
+
+#include<memory>
+#include<vec2.hpp>
+
+namespace RendererEngine {
+	class AnimatedSprite;
+}
+
+class Tank {
+public:
+
+	enum class eOrientation {
+		Top,
+		Bottom,
+		left,
+		right
+	};
+
+	Tank(std::shared_ptr<RendererEngine::AnimatedSprite> pSprite, const float velocity, const glm::vec2& position);
+
+	void render() const;
+	void setPosition(const glm::vec2& position);
+	void setOrientation(const eOrientation eOrientation);
+	void move(const bool move);
+	void update(const uint64_t delta);
+
+
+private:
+	eOrientation m_eOrientation;
+	std::shared_ptr<RendererEngine::AnimatedSprite> m_pSprite;
+	bool m_move;
+	glm::vec2 m_position;
+	float m_velocity;
+	glm::vec2 m_moveOffset;
+};

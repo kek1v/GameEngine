@@ -1,0 +1,93 @@
+{
+  "shaders": [
+    {
+      "name": "SpriteShader",
+      "filePath_v": "res/shaders/vSprite.txt",
+      "filePath_f": "res/shaders/fSprite.txt"
+    }
+  ],
+  "textureAtlases": [
+    {
+      "name": "TanksTextureAtlas",
+      "filePath": "res/textures/tanks.png",
+      "width": 256,
+      "height": 256,
+      "SubtextureWidth": 16,
+      "SubtextureHeight": 16,
+      "SubTextures": [
+        "yelowType1_Top1",
+        "yelowType1_Top2",
+        "yelowType1_Left1",
+        "yelowType1_Left2",
+        "yelowType1_Bottom1",
+        "yelowType1_Bottom2",
+        "yelowType1_right1",
+        "yelowType1_right2"
+      ]
+    }
+  ],
+  "animatedSprites": [
+    {
+      "name": "tankAnimatedSprite",
+      "textureAtlas": "TanksTextureAtlas",
+      "shader": "SpriteShader",
+      "initialWidth": 24,
+      "initialheight": 24,
+      "initialSubtexture": "yelowType1_Top1",
+      "states": [
+        {
+          "stateName": "tankTopState",
+          "frames": [
+            {
+              "subTexture": "yelowType1_Top1",
+              "duration": 500000000
+            },
+            {
+              "subTexture": "yelowType1_Top2",
+              "duration": 500000000
+            }
+          ]
+        },
+        {
+          "stateName": "tankLeftState",
+          "frames": [
+            {
+              "subTexture": "yelowType1_Left1",
+              "duration": 500000000
+            },
+            {
+              "subTexture": "yelowType1_Left2",
+              "duration": 500000000
+            }
+          ]
+        },
+        {
+          "stateName": "tankBottomState",
+          "frames": [
+            {
+              "subTexture": "yelowType1_Bottom1",
+              "duration": 500000000
+            },
+            {
+              "subTexture": "yelowType1_Bottom2",
+              "duration": 500000000
+            }
+          ]
+        },
+        {
+          "stateName": "tankRightState",
+          "frames": [
+            {
+              "subTexture": "yelowType1_right1",
+              "duration": 500000000
+            },
+            {
+              "subTexture": "yelowType1_right2",
+              "duration": 500000000
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

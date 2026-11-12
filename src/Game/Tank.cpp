@@ -16,6 +16,11 @@ void Tank::render() const {
 	m_pSprite->render();
 }
 
+void Tank::setPosition(const glm::vec2& position) {
+	m_position = position;
+	m_pSprite->setPosition(position);
+}
+
 void Tank::setOrientation(const eOrientation eOrientation) {
 	if (m_eOrientation == eOrientation) {
 		return;

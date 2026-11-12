@@ -17,7 +17,7 @@ namespace RendererEngine {
 	}
 
 	void Renderer::setViewport(unsigned int width, unsigned int height, unsigned int leftOffset, unsigned int bottomOffset){
-		setViewport(width, height, leftOffset, bottomOffset);
+		glViewport(leftOffset, bottomOffset, width, height);
 	}
 
 	std::string Renderer::getRendererStr(){

@@ -273,7 +273,7 @@ bool ResourceManager::loadJSONresources(const std::string& JSONpath){
 		for (const auto& CurrentAnimatedSpritesIt : animatedSpritesIt->value.GetArray()) {
 			const std::string name = CurrentAnimatedSpritesIt["name"].GetString();
 			const std::string textureAtlas = CurrentAnimatedSpritesIt["textureAtlas"].GetString();
-			const std::string shader = CurrentAnimatedSpritesIt["SpriteShader"].GetString();
+			const std::string shader = CurrentAnimatedSpritesIt["shader"].GetString();
 			const unsigned int initialWidth = CurrentAnimatedSpritesIt["initialWidth"].GetUint();
 			const unsigned int initialheight = CurrentAnimatedSpritesIt["initialheight"].GetUint();
 			const std::string initialSubtexture = CurrentAnimatedSpritesIt["initialSubtexture"].GetString();

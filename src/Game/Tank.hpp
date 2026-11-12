@@ -20,6 +20,7 @@ public:
 	Tank(std::shared_ptr<RendererEngine::AnimatedSprite> pSprite, const float velocity, const glm::vec2& position);
 
 	void render() const;
+	void setPosition(const glm::vec2& position);
 	void setOrientation(const eOrientation eOrientation);
 	void move(const bool move);
 	void update(const uint64_t delta);
